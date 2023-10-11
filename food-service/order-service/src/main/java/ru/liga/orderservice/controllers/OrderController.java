@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.liga.orderservice.Util.Converter;
+import ru.liga.orderservice.util.Converter;
 import ru.liga.orderservice.models.Order;
 import ru.liga.orderservice.models.dto.OrderCreateDTO;
 import ru.liga.orderservice.models.dto.OrderDTO;

@@ -1,4 +1,4 @@
-package ru.liga.orderservice.Util;
+package ru.liga.orderservice.util;
 
 
 import org.modelmapper.ModelMapper;

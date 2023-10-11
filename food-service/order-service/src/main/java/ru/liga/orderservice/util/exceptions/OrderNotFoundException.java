@@ -1,4 +1,4 @@
-package ru.liga.orderservice.Util.exceptions;
+package ru.liga.orderservice.util.exceptions;
 
 public class OrderNotFoundException extends RuntimeException{
 

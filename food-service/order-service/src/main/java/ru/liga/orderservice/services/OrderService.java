@@ -2,7 +2,7 @@ package ru.liga.orderservice.services;
 
 
 import org.springframework.stereotype.Service;
-import ru.liga.orderservice.Util.exceptions.OrderNotFoundException;
+import ru.liga.orderservice.util.exceptions.OrderNotFoundException;
 import ru.liga.orderservice.models.Order;
 
 import java.util.List;
