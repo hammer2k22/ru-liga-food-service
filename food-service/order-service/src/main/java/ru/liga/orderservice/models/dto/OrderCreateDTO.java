@@ -11,8 +11,8 @@ import java.util.List;
 @Setter
 public class OrderCreateDTO {
 
-    private Long restrauntId;
+    private Long restaurantId;
 
-    private List<OrderItemForCreateOrderDTO> orderItems;
+    private List<OrderItemForCreateOrderDTO> menuItems;
 
 }

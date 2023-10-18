@@ -15,7 +15,7 @@ create table orders
     courier_id    bigint
         constraint "FK-orders_couriers"
             references couriers,
-    timestamp     timestamp default now() not null
+    timestamp     timestamp not null default now()
 );
 
 alter table orders

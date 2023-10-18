@@ -5,6 +5,7 @@ create table if not exists restaurants
     id      bigserial
         constraint restaurants_pk
             primary key,
+    name    varchar(32) not null ,
     address varchar     not null,
     status  varchar(16) not null
 );
@@ -17,5 +18,6 @@ create unique index restaurants_id_uindex
 
 comment on table restaurants is 'Список ресторанов';
 comment on column restaurants.id is 'Идентификатор ресторана';
+comment on column restaurants.name is 'Название ресторана';
 comment on column restaurants.address is 'Адрес ресторана';
 comment on column restaurants.status is 'Статус ресторана';

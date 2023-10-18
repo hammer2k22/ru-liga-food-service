@@ -5,22 +5,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.liga.orderservice.util.Converter;
-import ru.liga.orderservice.models.Order;
+import ru.liga.orderservice.models.dto.OrderCreateResponse;
+import ru.liga.orderservice.models.dto.OrdersResponse;
 import ru.liga.orderservice.models.dto.OrderCreateDTO;
 import ru.liga.orderservice.models.dto.OrderDTO;
-import ru.liga.orderservice.models.dto.OrderToBeUpdateDTO;
 import ru.liga.orderservice.services.OrderService;
+import ru.liga.orderservice.util.ErrorResponse;
+import ru.liga.orderservice.util.exceptions.OrderNotFoundException;
+import ru.liga.orderservice.util.exceptions.RestaurantMenuItemNotFoundException;
+import ru.liga.orderservice.util.exceptions.RestaurantNotFoundException;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.sql.Timestamp;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,47 +33,30 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping()
-    public ResponseEntity<HttpStatus> create(@RequestBody OrderCreateDTO orderCreateDTO) {
+    public ResponseEntity<OrderCreateResponse> create(@RequestBody OrderCreateDTO orderCreateDTO) {
 
-        Order order = Converter.convertOrderCreateDTOToOrder(orderCreateDTO);
+     OrderCreateResponse response = orderService.createNewOrder(orderCreateDTO);
 
-        orderService.create(order);
-
-        return ResponseEntity.ok(HttpStatus.CREATED);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping()
-    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+    public ResponseEntity<OrdersResponse> getAllOrders(@RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "10") int size) {
 
-        List<OrderDTO> orders = orderService.getAllOrders().stream()
-                .map(Converter::convertOrderToOrderDTO)
-                .collect(Collectors.toList());
+        OrdersResponse response = orderService.getOrdersResponse(page,size);
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(response);
+
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
 
-        Order order = orderService.getById(id);
+        OrderDTO order = orderService.getOrderDTOById(id);
 
-        OrderDTO orderDTO = Converter.convertOrderToOrderDTO(order);
-
-        return ResponseEntity.ok(orderDTO);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<HttpStatus> update(@PathVariable Long id,
-                                             @RequestBody OrderToBeUpdateDTO orderToBeUpdateDTO) {
-
-        /*Здесь я не знаю какие поля нужно обновлять. Я сделал, как будто клиент может именить
-                ресторан и набор продуктов*/
-
-        Order order = Converter.convertOrderToBeUpdateDTOToOrder(orderToBeUpdateDTO);
-
-        orderService.update(id,order);
-
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok(order);
     }
 
     @DeleteMapping("/{id}")
@@ -79,6 +65,36 @@ public class OrderController {
         orderService.delete(id);
 
         return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(OrderNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+               new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(RestaurantNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(RestaurantMenuItemNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

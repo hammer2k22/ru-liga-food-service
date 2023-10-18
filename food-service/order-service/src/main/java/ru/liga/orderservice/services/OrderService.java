@@ -1,51 +1,119 @@
 package ru.liga.orderservice.services;
 
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.liga.orderservice.mappers.OrderMapper;
+import ru.liga.orderservice.models.OrderItem;
+import ru.liga.orderservice.models.OrderStatus;
+import ru.liga.orderservice.models.Restaurant;
+import ru.liga.orderservice.models.RestaurantMenuItem;
+import ru.liga.orderservice.models.dto.OrderCreateDTO;
+import ru.liga.orderservice.models.dto.OrderCreateResponse;
+import ru.liga.orderservice.models.dto.OrderDTO;
+import ru.liga.orderservice.models.dto.OrdersResponse;
+import ru.liga.orderservice.repositories.CustomerRepository;
+import ru.liga.orderservice.repositories.OrderItemRepository;
+import ru.liga.orderservice.repositories.OrderRepository;
+import ru.liga.orderservice.repositories.RestaurantMenuItemRepository;
+import ru.liga.orderservice.repositories.RestaurantRepository;
 import ru.liga.orderservice.util.exceptions.OrderNotFoundException;
 import ru.liga.orderservice.models.Order;
+import ru.liga.orderservice.util.exceptions.RestaurantMenuItemNotFoundException;
+import ru.liga.orderservice.util.exceptions.RestaurantNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OrderService {
 
+    private final OrderRepository orderRepository;
+    private final CustomerRepository customerRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final RestaurantMenuItemRepository restaurantMenuItemRepository;
+    private final RestaurantRepository restaurantRepository;
+    private final OrderMapper orderMapper;
 
 
-    public void create(Order order) {
+    @Transactional
+    public OrderCreateResponse createNewOrder(OrderCreateDTO orderCreateDTO) {
 
-        order.setTimestamp(System.currentTimeMillis());
+        Order order = orderMapper.orderCreateDTOtoOrder(orderCreateDTO);
+        checkIfRestaurantIsNull(order);
+        order.setCustomer(customerRepository.findAll().get(0));    /*Для проверки работоспособности*/
+        order.setStatus(OrderStatus.CUSTOMER_CREATED);
+        orderRepository.save(order);
 
+        List<OrderItem> orderItems = order.getOrderItems();
+        orderItems.forEach(orderItem -> orderItem.setOrder(order));
+        orderItems.forEach(orderItem -> orderItem.setPrice(getOrderItemPrice(orderItem)));
+        orderItemRepository.saveAll(orderItems);
+
+        return new OrderCreateResponse(order.getId(),"","");
     }
 
-    public List<Order> getAllOrders(){
 
-        return List.of(new Order());
+    public OrdersResponse getOrdersResponse(int page, int size) {
+
+        Page<OrderDTO> orders = orderRepository.findAll(PageRequest.of(page, size))
+                .map(orderMapper::orderToOrderDTO);
+
+        return new OrdersResponse(orders.getContent(),orders.getNumber(),orders.getSize());
     }
 
-    public Order getById(Long id) {
+    public OrderDTO getOrderDTOById(Long id) {
 
-        Order order = new Order();
-        checkIfOrderIsNull(order);
-        return order;
+        Order order = orderRepository.findById(id).orElse(null);
+
+        checkIfOrderIsNull(order,id);
+
+        return orderMapper.orderToOrderDTO(order);
     }
-
-    public void update(Long id, Order order) {
-
-
-    }
-
-
-
     public void delete(Long id) {
 
-
+        Order order = orderRepository.findById(id).orElse(null);
+        checkIfOrderIsNull(order,id);
+        order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
     }
 
-    private void checkIfOrderIsNull(Order order) {
+    private Long getOrderItemPrice(OrderItem orderItem){
+
+        Long menuItemId = orderItem.getRestaurantMenuItem().getId();
+
+        RestaurantMenuItem menuItem = restaurantMenuItemRepository
+                .findById(menuItemId).orElse(null);
+        checkIfRestaurantMenuItemIsNull(menuItem, menuItemId);
+
+        Long menuItemPrice = menuItem.getPrice();
+        Integer quantity = orderItem.getQuantity();
+        return menuItemPrice*quantity;
+    }
+
+    private void checkIfOrderIsNull(Order order, Long id) {
         if (order == null) {
-            throw new OrderNotFoundException("There is no order with this Id");
+            throw new OrderNotFoundException("Order with id = "+id+" is not found");
+        }
+    }
+
+    private void checkIfRestaurantIsNull(Order order) {
+        Long restaurantId = order.getRestaurant().getId();
+        Optional<Restaurant> restaurant = restaurantRepository.findById(restaurantId);
+        if(restaurant.isEmpty()){
+            throw new RestaurantNotFoundException("Restaurant with id = "+restaurantId+" is not found");
+        }
+    }
+
+    private void checkIfRestaurantMenuItemIsNull(RestaurantMenuItem menuItem, Long menuItemId) {
+        if (menuItem == null) {
+            throw new RestaurantMenuItemNotFoundException
+                    ("RestaurantMenuItem with id = "+menuItemId+" is not found");
         }
     }
 }

@@ -12,7 +12,8 @@ public class OrderItemDTO {
 
     private Integer quantity;
 
-    private RestrauntMenuItemForOrderItemDTO restrauntMenuItem;
+    private String description;
 
+    private String image;
 
 }

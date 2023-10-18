@@ -1,2 +1,2 @@
-INSERT INTO restaurants(address, status)
-VALUES ('Nizhniy Novgorod, Minina 1', 'active');
+INSERT INTO restaurants(name,address, status)
+VALUES ('Minin','Nizhniy Novgorod, Minina 1', 'active');
