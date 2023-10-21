@@ -4,6 +4,7 @@ package ru.liga.deliveryservice.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
-import ru.liga.deliveryservice.models.dto.OrderActionDTO;
 import ru.liga.deliveryservice.services.DeliveryService;
+import ru.liga.deliveryservice.util.ErrorResponse;
+import ru.liga.deliveryservice.util.exceptions.OrderNotFoundException;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 
@@ -45,6 +48,16 @@ public class DeliveryController {
 
         return ResponseEntity.ok(HttpStatus.OK);
 
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(OrderNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

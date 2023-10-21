@@ -10,6 +10,6 @@ public class CustomerDTO {
 
     private String address;
 
-    private Long distance;   /*Неизвестное поле*/
+    private String distance;
 
 }

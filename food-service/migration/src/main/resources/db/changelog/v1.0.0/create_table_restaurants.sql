@@ -7,7 +7,8 @@ create table if not exists restaurants
             primary key,
     name    varchar(32) not null ,
     address varchar     not null,
-    status  varchar(16) not null
+    status  varchar(16) not null,
+    coordinates varchar(32)     not null
 );
 
 alter table restaurants
@@ -21,3 +22,4 @@ comment on column restaurants.id is 'Идентификатор ресторан
 comment on column restaurants.name is 'Название ресторана';
 comment on column restaurants.address is 'Адрес ресторана';
 comment on column restaurants.status is 'Статус ресторана';
+comment on column restaurants.coordinates is 'Координаты ресторана';

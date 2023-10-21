@@ -7,7 +7,7 @@ create table if not exists couriers
             primary key,
     phone       varchar(16) not null,
     status      varchar(16) not null,
-    coordinates varchar     not null
+    coordinates varchar(32)   not null
 );
 
 alter table couriers

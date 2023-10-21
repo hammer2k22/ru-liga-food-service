@@ -8,9 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class DeliveryDistances {
 
-    private Long customerDistance;
-    private Long restaurantDistance;
+    private String customerDistance;
+
+    private String restaurantDistance;
 }
