@@ -64,20 +64,14 @@ public class DeliveryService {
         String coordinatesOfCourier = orderRepository.findById(orderId).get()
                 .getCourier().getCoordinates();
 
-        String customerDistance = String.valueOf(round(DistanceCalculator
-                .calculateDistance(coordinatesOfCourier, coordinatesOfCustomer)));
+        Double customerDistance = DistanceCalculator
+                .calculateDistance(coordinatesOfCourier, coordinatesOfCustomer);
 
-        String restaurantDistance = String.valueOf(round(DistanceCalculator
-                .calculateDistance(coordinatesOfCourier, coordinatesOfRestaurant)));
+        Double restaurantDistance = DistanceCalculator
+                .calculateDistance(coordinatesOfCourier, coordinatesOfRestaurant);
 
-        return new DeliveryDistances(customerDistance + " km",
-                restaurantDistance + " km");
-    }
-
-    private Double round(Double value) {
-        DecimalFormat decimalFormat = new DecimalFormat("#.###");
-        String roundedValue = decimalFormat.format(value);
-        return Double.valueOf(roundedValue.replace(",", "."));
+        return new DeliveryDistances(String.format("%.3f", customerDistance),
+                String.format("%.3f", restaurantDistance));
     }
 
     private void checkIfOrderIsNull(Order order, Long id) {
