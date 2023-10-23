@@ -51,7 +51,6 @@ public class RestaurantMenuItemController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
-
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(RestaurantMenuItemNotFoundException e) {
         ErrorResponse response = new ErrorResponse(

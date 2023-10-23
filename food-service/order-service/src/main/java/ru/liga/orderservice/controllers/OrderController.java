@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.liga.orderservice.models.dto.OrderCreateResponse;
-import ru.liga.orderservice.models.dto.OrdersResponse;
-import ru.liga.orderservice.models.dto.OrderCreateDTO;
-import ru.liga.orderservice.models.dto.OrderDTO;
-import ru.liga.orderservice.services.OrderService;
-import ru.liga.orderservice.util.ErrorResponse;
-import ru.liga.orderservice.util.exceptions.OrderNotFoundException;
-import ru.liga.orderservice.util.exceptions.RestaurantMenuItemNotFoundException;
-import ru.liga.orderservice.util.exceptions.RestaurantNotFoundException;
+import ru.liga.common.models.dto.OrderCreateResponse;
+import ru.liga.common.models.dto.OrdersResponse;
+import ru.liga.common.models.dto.OrderCreateDTO;
+import ru.liga.common.models.dto.OrderDTO;
+import ru.liga.common.services.OrderService;
+import ru.liga.common.util.ErrorResponse;
+import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
+import ru.liga.common.util.exceptions.RestaurantNotFoundException;
 
 import java.sql.Timestamp;
 
@@ -35,7 +35,7 @@ public class OrderController {
     @PostMapping()
     public ResponseEntity<OrderCreateResponse> create(@RequestBody OrderCreateDTO orderCreateDTO) {
 
-     OrderCreateResponse response = orderService.createNewOrder(orderCreateDTO);
+        OrderCreateResponse response = orderService.createNewOrder(orderCreateDTO);
 
         return ResponseEntity.ok(response);
     }
@@ -44,11 +44,18 @@ public class OrderController {
     public ResponseEntity<OrdersResponse> getAllOrders(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
 
-        OrdersResponse response = orderService.getOrdersResponse(page,size);
+        OrdersResponse response = orderService.getOrdersResponse(page, size);
 
         return ResponseEntity.ok(response);
 
 
+    }
+
+    @GetMapping("/test")
+    public String getAllOrders() {
+        String s = "WORK";
+
+        return s;
     }
 
     @GetMapping("/{id}")
@@ -71,7 +78,7 @@ public class OrderController {
     private ResponseEntity<ErrorResponse> handleException(OrderNotFoundException e) {
         ErrorResponse response = new ErrorResponse(
                 e.getMessage(),
-               new Timestamp(System.currentTimeMillis())
+                new Timestamp(System.currentTimeMillis())
         );
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
