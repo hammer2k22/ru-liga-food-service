@@ -1,7 +1,7 @@
 package ru.liga.deliveryservice.mappers;
 
 import org.mapstruct.Mapper;
-import ru.liga.deliveryservice.models.Customer;
+import ru.liga.common.models.Customer;
 import ru.liga.deliveryservice.models.dto.CustomerDTO;
 
 

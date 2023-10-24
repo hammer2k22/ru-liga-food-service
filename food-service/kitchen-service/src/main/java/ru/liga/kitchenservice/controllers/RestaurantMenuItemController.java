@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.liga.common.util.ErrorResponse;
+import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreateDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreatedResponse;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemUpdateDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemUpdatedResponse;
 import ru.liga.kitchenservice.services.RestaurantMenuItemService;
-import ru.liga.kitchenservice.util.ErrorResponse;
-import ru.liga.kitchenservice.util.exceptions.RestaurantMenuItemNotFoundException;
 
 import java.sql.Timestamp;
 

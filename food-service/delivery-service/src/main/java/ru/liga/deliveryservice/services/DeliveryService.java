@@ -6,17 +6,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.liga.common.models.Order;
+import ru.liga.common.models.OrderStatus;
+import ru.liga.common.repositories.OrderRepository;
+import ru.liga.common.util.DistanceCalculator;
+import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.deliveryservice.mappers.DeliveryMapper;
-import ru.liga.deliveryservice.models.Order;
-import ru.liga.deliveryservice.models.OrderStatus;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
 import ru.liga.deliveryservice.models.dto.DeliveryDTO;
 import ru.liga.deliveryservice.models.dto.DeliveryDistances;
-import ru.liga.deliveryservice.repositories.OrderRepository;
-import ru.liga.deliveryservice.util.DistanceCalculator;
-import ru.liga.deliveryservice.util.exceptions.OrderNotFoundException;
 
-import java.text.DecimalFormat;
+
 import java.util.Map;
 
 

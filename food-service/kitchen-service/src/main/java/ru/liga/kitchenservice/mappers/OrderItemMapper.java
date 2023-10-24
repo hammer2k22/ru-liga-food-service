@@ -2,7 +2,7 @@ package ru.liga.kitchenservice.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.liga.kitchenservice.models.OrderItem;
+import ru.liga.common.models.OrderItem;
 import ru.liga.kitchenservice.models.dto.OrderItemDTO;
 
 

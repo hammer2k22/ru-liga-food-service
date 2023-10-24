@@ -2,9 +2,9 @@ package ru.liga.deliveryservice.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.liga.deliveryservice.models.Order;
-import ru.liga.deliveryservice.models.dto.DeliveryDistances;
+import ru.liga.common.models.Order;
 import ru.liga.deliveryservice.models.dto.DeliveryDTO;
+import ru.liga.deliveryservice.models.dto.DeliveryDistances;
 
 
 

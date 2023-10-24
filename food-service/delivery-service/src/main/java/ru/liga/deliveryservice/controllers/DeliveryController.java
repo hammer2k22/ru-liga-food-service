@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.liga.common.util.ErrorResponse;
+import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
 import ru.liga.deliveryservice.services.DeliveryService;
-import ru.liga.deliveryservice.util.ErrorResponse;
-import ru.liga.deliveryservice.util.exceptions.OrderNotFoundException;
 
 import java.sql.Timestamp;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class DeliveryController {
                 new Timestamp(System.currentTimeMillis())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
 }

@@ -11,7 +11,7 @@ create table orders
     restaurant_id bigint                  not null
         constraint "FK_orders_restaurant"
             references restaurants,
-    status        varchar(16)             not null,
+    status        varchar(32)             not null,
     courier_id    bigint
         constraint "FK-orders_couriers"
             references couriers,

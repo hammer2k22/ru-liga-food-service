@@ -2,8 +2,8 @@ package ru.liga.kitchenservice.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import ru.liga.kitchenservice.models.Restaurant;
-import ru.liga.kitchenservice.models.RestaurantMenuItem;
+import ru.liga.common.models.Restaurant;
+import ru.liga.common.models.RestaurantMenuItem;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreateDTO;
 
 
