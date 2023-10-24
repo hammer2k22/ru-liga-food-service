@@ -1,11 +1,11 @@
-package ru.liga.common.mappers;
+package ru.liga.orderservice.mappers;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.liga.common.models.Order;
 import ru.liga.common.models.Restaurant;
-import ru.liga.common.models.dto.OrderCreateDTO;
-import ru.liga.common.models.dto.OrderDTO;
+import ru.liga.orderservice.models.dto.OrderCreateDTO;
+import ru.liga.orderservice.models.dto.OrderDTO;
 
 
 @Mapper(componentModel = "spring", uses = {RestaurantMapper.class, OrderItemMapper.class})

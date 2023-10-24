@@ -1,8 +1,8 @@
-package ru.liga.common.mappers;
+package ru.liga.orderservice.mappers;
 
 import org.mapstruct.Mapper;
 import ru.liga.common.models.Restaurant;
-import ru.liga.common.models.dto.RestaurantDTO;
+import ru.liga.orderservice.models.dto.RestaurantDTO;
 
 @Mapper(componentModel = "spring")
 public interface RestaurantMapper {

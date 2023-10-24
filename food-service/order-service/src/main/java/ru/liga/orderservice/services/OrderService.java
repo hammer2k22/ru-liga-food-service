@@ -1,4 +1,4 @@
-package ru.liga.common.services;
+package ru.liga.orderservice.services;
 
 
 import lombok.RequiredArgsConstructor;
@@ -6,16 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.liga.common.mappers.OrderMapper;
 import ru.liga.common.models.Order;
 import ru.liga.common.models.OrderItem;
 import ru.liga.common.models.OrderStatus;
 import ru.liga.common.models.Restaurant;
 import ru.liga.common.models.RestaurantMenuItem;
-import ru.liga.common.models.dto.OrderCreateDTO;
-import ru.liga.common.models.dto.OrderCreateResponse;
-import ru.liga.common.models.dto.OrderDTO;
-import ru.liga.common.models.dto.OrdersResponse;
 import ru.liga.common.repositories.CustomerRepository;
 import ru.liga.common.repositories.OrderItemRepository;
 import ru.liga.common.repositories.OrderRepository;
@@ -24,6 +19,11 @@ import ru.liga.common.repositories.RestaurantRepository;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
+import ru.liga.orderservice.mappers.OrderMapper;
+import ru.liga.orderservice.models.dto.OrderCreateDTO;
+import ru.liga.orderservice.models.dto.OrderCreateResponse;
+import ru.liga.orderservice.models.dto.OrderDTO;
+import ru.liga.orderservice.models.dto.OrdersResponse;
 
 import java.util.List;
 import java.util.Optional;

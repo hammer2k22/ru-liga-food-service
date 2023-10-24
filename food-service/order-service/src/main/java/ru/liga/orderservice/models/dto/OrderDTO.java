@@ -1,4 +1,4 @@
-package ru.liga.common.models.dto;
+package ru.liga.orderservice.models.dto;
 
 
 import lombok.Getter;

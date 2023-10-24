@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.liga.common.models.dto.OrderCreateResponse;
-import ru.liga.common.models.dto.OrdersResponse;
-import ru.liga.common.models.dto.OrderCreateDTO;
-import ru.liga.common.models.dto.OrderDTO;
-import ru.liga.common.services.OrderService;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
+import ru.liga.orderservice.models.dto.OrderCreateDTO;
+import ru.liga.orderservice.models.dto.OrderCreateResponse;
+import ru.liga.orderservice.models.dto.OrderDTO;
+import ru.liga.orderservice.models.dto.OrdersResponse;
+import ru.liga.orderservice.services.OrderService;
 
 import java.sql.Timestamp;
 
@@ -81,7 +81,7 @@ public class OrderController {
                 new Timestamp(System.currentTimeMillis())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
@@ -91,7 +91,7 @@ public class OrderController {
                 new Timestamp(System.currentTimeMillis())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
@@ -101,7 +101,7 @@ public class OrderController {
                 new Timestamp(System.currentTimeMillis())
         );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
 }
