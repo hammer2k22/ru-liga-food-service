@@ -10,7 +10,7 @@ import ru.liga.kitchenservice.models.dto.OrderItemDTO;
 
 public interface OrderItemMapper {
 
-    @Mapping(source = "restaurantMenuItem.id", target = "menuItemId")
+    @Mapping(source = "restaurantMenuItem.name", target = "name")
     OrderItemDTO orderItemToOrderItemDTO(OrderItem orderItem);
 
 }

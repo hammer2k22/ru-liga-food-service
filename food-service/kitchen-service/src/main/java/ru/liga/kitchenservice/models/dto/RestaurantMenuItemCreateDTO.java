@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter
 public class RestaurantMenuItemCreateDTO {
 
-    private Long restaurantId;
 
     private String name;
 

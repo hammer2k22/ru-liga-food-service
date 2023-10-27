@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RestaurantMenuItemUpdatedResponse {
 
-    private Long restaurantMenuItemId;
+    private String restaurantMenuItemName;
 
     private Long price;
 }

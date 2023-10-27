@@ -10,7 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DeliveryDistances {
 
-    private String customerDistance;
+    private Double customerDistance;
 
-    private String restaurantDistance;
+    private Double restaurantDistance;
 }

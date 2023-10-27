@@ -6,7 +6,7 @@ create table if not exists couriers
         constraint couriers_pk
             primary key,
     phone       varchar(16) not null,
-    status      varchar(16) not null,
+    status      varchar(32) not null,
     coordinates varchar(32)   not null
 );
 

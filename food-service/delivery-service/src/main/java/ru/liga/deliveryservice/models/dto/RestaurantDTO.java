@@ -10,6 +10,6 @@ public class RestaurantDTO {
 
     private String address;
 
-    private String distance;
+    private Double distance;
 
 }

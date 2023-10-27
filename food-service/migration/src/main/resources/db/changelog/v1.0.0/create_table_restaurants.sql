@@ -7,7 +7,7 @@ create table if not exists restaurants
             primary key,
     name    varchar(32) not null ,
     address varchar     not null,
-    status  varchar(16) not null,
+    status  varchar(32) not null,
     coordinates varchar(32)     not null
 );
 

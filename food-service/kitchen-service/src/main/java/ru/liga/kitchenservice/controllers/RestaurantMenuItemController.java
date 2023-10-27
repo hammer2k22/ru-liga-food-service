@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
-import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreateDTO;
-import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreatedResponse;
+import ru.liga.kitchenservice.models.dto.RestaurantMenuItemDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemUpdateDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemUpdatedResponse;
 import ru.liga.kitchenservice.services.RestaurantMenuItemService;
@@ -27,30 +26,28 @@ import java.sql.Timestamp;
 @RequestMapping("/api/v1/restaurantMenuItems")
 public class RestaurantMenuItemController {
 
-    private final RestaurantMenuItemService restaurantMenuItemService;
+    private final RestaurantMenuItemService menuItemService;
 
 
-    @PostMapping()
-    public ResponseEntity<RestaurantMenuItemCreatedResponse> createNewRestaurantMenuItem(
-            @RequestBody RestaurantMenuItemCreateDTO restaurantMenuItemDTO) {
+    @GetMapping("/{id}")
+    public ResponseEntity<RestaurantMenuItemDTO> getMenuItemById(@PathVariable Long id) {
 
-       RestaurantMenuItemCreatedResponse response =
-               restaurantMenuItemService.createNewItem(restaurantMenuItemDTO);
+        RestaurantMenuItemDTO menuItem = menuItemService.getItemById(id);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
+        return ResponseEntity.ok(menuItem);
     }
 
-    @PatchMapping("/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<RestaurantMenuItemUpdatedResponse> updateRestaurantMenuItem(
             @RequestBody RestaurantMenuItemUpdateDTO restaurantMenuItemUpdateDTO, @PathVariable Long id) {
 
         RestaurantMenuItemUpdatedResponse response =
-                restaurantMenuItemService.updateItem(id,restaurantMenuItemUpdateDTO);
+                menuItemService.updateItem(id, restaurantMenuItemUpdateDTO);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
 
     }
+
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(RestaurantMenuItemNotFoundException e) {
         ErrorResponse response = new ErrorResponse(

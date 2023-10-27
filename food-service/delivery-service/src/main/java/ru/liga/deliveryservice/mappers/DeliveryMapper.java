@@ -13,8 +13,8 @@ public interface DeliveryMapper {
     @Mapping(source = "order.id", target = "orderId")
     @Mapping(source = "distances.customerDistance", target = "customer.distance")
     @Mapping(source = "distances.restaurantDistance", target = "restaurant.distance")
-    @Mapping(source = "order.restaurant.address", target = "customer.address")
-    @Mapping(source = "order.customer.address", target = "restaurant.address")
+    @Mapping(source = "order.restaurant.address", target = "restaurant.address")
+    @Mapping(source = "order.customer.address", target = "customer.address")
     DeliveryDTO orderToDeliveryDTO(Order order, String payment, DeliveryDistances distances);
 
 }

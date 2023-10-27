@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.liga.common.models.OrderStatus;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
@@ -20,6 +21,7 @@ import ru.liga.common.util.exceptions.RestaurantNotFoundException;
 import ru.liga.orderservice.models.dto.OrderCreateDTO;
 import ru.liga.orderservice.models.dto.OrderCreateResponse;
 import ru.liga.orderservice.models.dto.OrderDTO;
+import ru.liga.orderservice.models.dto.OrderResponse;
 import ru.liga.orderservice.models.dto.OrdersResponse;
 import ru.liga.orderservice.services.OrderService;
 
@@ -44,34 +46,46 @@ public class OrderController {
     public ResponseEntity<OrdersResponse> getAllOrders(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
 
-        OrdersResponse response = orderService.getOrdersResponse(page, size);
+        OrdersResponse response = orderService.getAllOrders(page, size);
 
         return ResponseEntity.ok(response);
 
-
-    }
-
-    @GetMapping("/test")
-    public String getAllOrders() {
-        String s = "WORK";
-
-        return s;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
 
-        OrderDTO order = orderService.getOrderDTOById(id);
+        OrderDTO order = orderService.getOrderById(id);
 
         return ResponseEntity.ok(order);
     }
 
+    @PostMapping("/pay/{id}")
+    public ResponseEntity<OrderResponse> payOrder(@PathVariable Long id) {
+
+        OrderResponse response = orderService.updateOrderStatus(OrderStatus.CUSTOMER_PAID.toString(), id);
+
+        return ResponseEntity.ok(response);
+
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id,
+                                                           @RequestBody String status) {
+
+        OrderResponse response = orderService.updateOrderStatus(status, id);
+
+
+        return ResponseEntity.ok(response);
+
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable Long id) {
+    public ResponseEntity<OrderResponse> delete(@PathVariable Long id) {
 
-        orderService.delete(id);
+        OrderResponse response = orderService.delete(id);
 
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
     @ExceptionHandler

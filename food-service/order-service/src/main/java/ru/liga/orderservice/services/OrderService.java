@@ -11,6 +11,11 @@ import ru.liga.common.models.OrderItem;
 import ru.liga.common.models.OrderStatus;
 import ru.liga.common.models.Restaurant;
 import ru.liga.common.models.RestaurantMenuItem;
+import ru.liga.common.repositories.CustomerRepository;
+import ru.liga.common.repositories.OrderItemRepository;
+import ru.liga.common.repositories.OrderRepository;
+import ru.liga.common.repositories.RestaurantMenuItemRepository;
+import ru.liga.common.repositories.RestaurantRepository;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
@@ -18,12 +23,9 @@ import ru.liga.orderservice.mappers.OrderMapper;
 import ru.liga.orderservice.models.dto.OrderCreateDTO;
 import ru.liga.orderservice.models.dto.OrderCreateResponse;
 import ru.liga.orderservice.models.dto.OrderDTO;
+import ru.liga.orderservice.models.dto.OrderResponse;
 import ru.liga.orderservice.models.dto.OrdersResponse;
-import ru.liga.common.repositories.CustomerRepository;
-import ru.liga.common.repositories.OrderItemRepository;
-import ru.liga.common.repositories.OrderRepository;
-import ru.liga.common.repositories.RestaurantMenuItemRepository;
-import ru.liga.common.repositories.RestaurantRepository;
+import ru.liga.orderservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +42,7 @@ public class OrderService {
     private final RestaurantMenuItemRepository restaurantMenuItemRepository;
     private final RestaurantRepository restaurantRepository;
     private final OrderMapper orderMapper;
+    private final RabbitProducerServiceImpl rabbitProducerService;
 
 
     @Transactional
@@ -56,64 +59,72 @@ public class OrderService {
         orderItems.forEach(orderItem -> orderItem.setPrice(getOrderItemPrice(orderItem)));
         orderItemRepository.saveAll(orderItems);
 
-        return new OrderCreateResponse(order.getId(),"","");
+        return new OrderCreateResponse(order.getId(), "some payment", "some time");
     }
 
 
-    public OrdersResponse getOrdersResponse(int page, int size) {
+    public OrdersResponse getAllOrders(int page, int size) {
 
         Page<OrderDTO> orders = orderRepository.findAll(PageRequest.of(page, size))
                 .map(orderMapper::orderToOrderDTO);
 
-        return new OrdersResponse(orders.getContent(),orders.getNumber(),orders.getSize());
+        return new OrdersResponse(orders.getContent(), orders.getNumber(), orders.getSize());
     }
 
-    public OrderDTO getOrderDTOById(Long id) {
+    public OrderDTO getOrderById(Long id) {
 
-        Order order = orderRepository.findById(id).orElse(null);
-
-        checkIfOrderIsNull(order,id);
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with id = " + id + " is not found"));
 
         return orderMapper.orderToOrderDTO(order);
     }
-    public void delete(Long id) {
 
-        Order order = orderRepository.findById(id).orElse(null);
-        checkIfOrderIsNull(order,id);
-        order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
+    @Transactional
+    public OrderResponse updateOrderStatus(String orderStatus, Long id) {
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with id = " + id + " is not found"));
+
+        order.setStatus(OrderStatus.valueOf(orderStatus));
+
+        orderRepository.save(order);
+
+        rabbitProducerService.sendMessage(id + "."+orderStatus, "notification");
+
+        return new OrderResponse(id, orderStatus);
     }
 
-    private Long getOrderItemPrice(OrderItem orderItem){
+    @Transactional
+    public OrderResponse delete(Long id) {
+
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException("Order with id = " + id + " is not found"));
+
+        order.setStatus(OrderStatus.CUSTOMER_CANCELLED);
+
+        return new OrderResponse(id, OrderStatus.CUSTOMER_CANCELLED.toString());
+    }
+
+    private Long getOrderItemPrice(OrderItem orderItem) {
 
         Long menuItemId = orderItem.getRestaurantMenuItem().getId();
 
         RestaurantMenuItem menuItem = restaurantMenuItemRepository
-                .findById(menuItemId).orElse(null);
-        checkIfRestaurantMenuItemIsNull(menuItem, menuItemId);
+                .findById(menuItemId).orElseThrow(() -> new RestaurantMenuItemNotFoundException
+                        ("RestaurantMenuItem with id = " + menuItemId + " is not found"));
 
         Long menuItemPrice = menuItem.getPrice();
         Integer quantity = orderItem.getQuantity();
-        return menuItemPrice*quantity;
-    }
-
-    private void checkIfOrderIsNull(Order order, Long id) {
-        if (order == null) {
-            throw new OrderNotFoundException("Order with id = "+id+" is not found");
-        }
+        return menuItemPrice * quantity;
     }
 
     private void checkIfRestaurantIsNull(Order order) {
         Long restaurantId = order.getRestaurant().getId();
         Optional<Restaurant> restaurant = restaurantRepository.findById(restaurantId);
-        if(restaurant.isEmpty()){
-            throw new RestaurantNotFoundException("Restaurant with id = "+restaurantId+" is not found");
+        if (restaurant.isEmpty()) {
+            throw new RestaurantNotFoundException("Restaurant with id = " + restaurantId + " is not found");
         }
     }
 
-    private void checkIfRestaurantMenuItemIsNull(RestaurantMenuItem menuItem, Long menuItemId) {
-        if (menuItem == null) {
-            throw new RestaurantMenuItemNotFoundException
-                    ("RestaurantMenuItem with id = "+menuItemId+" is not found");
-        }
-    }
+
 }

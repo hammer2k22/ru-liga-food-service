@@ -6,17 +6,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.liga.common.models.Courier;
 import ru.liga.common.models.Order;
 import ru.liga.common.models.OrderStatus;
+import ru.liga.common.repositories.CourierRepository;
 import ru.liga.common.repositories.OrderRepository;
 import ru.liga.common.util.DistanceCalculator;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.deliveryservice.feignClients.OrderServiceClient;
 import ru.liga.deliveryservice.mappers.DeliveryMapper;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
 import ru.liga.deliveryservice.models.dto.DeliveryDTO;
 import ru.liga.deliveryservice.models.dto.DeliveryDistances;
+import ru.liga.deliveryservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
-
+import java.util.Comparator;
 import java.util.Map;
 
 
@@ -26,7 +30,10 @@ import java.util.Map;
 public class DeliveryService {
 
     private final OrderRepository orderRepository;
+    private final CourierRepository courierRepository;
     private final DeliveryMapper deliveryMapper;
+    private final RabbitProducerServiceImpl rabbitProducerService;
+    private final OrderServiceClient orderServiceClient;
 
 
     public DeliveriesResponse getDeliveriesResponseByStatus(int page, int size, String status) {
@@ -43,15 +50,40 @@ public class DeliveryService {
     @Transactional
     public void updateOrderStatus(Map<String, String> requestBody, Long id) {
 
-        Order order = orderRepository.findById(id).orElse(null);
-        checkIfOrderIsNull(order, id);
-        String status = requestBody.get("orderAction");
-        OrderStatus orderStatus = OrderStatus.valueOf(status);
-        order.setStatus(orderStatus);
+        Order order = orderRepository.findById(id).orElseThrow(() ->
+                new OrderNotFoundException("Order with id = " + id + " is not found"));
 
-        orderRepository.save(order);
+        String status = requestBody.get("orderAction");
+
+        if (status.equals("COURIER_ACCEPTED")) {
+            order.setCourier(getNearestCourier(id));
+            orderRepository.save(order);
+        }
+
+        orderServiceClient.updateOrder(id, status);
+    }
+
+    public void searchAvailableCourier(Long orderId) {
+
+        Courier courier = getNearestCourier(orderId);
+
+        System.out.println("Waiting courier with id" + courier.getId());
 
     }
+
+    private Courier getNearestCourier(Long orderId) {
+
+        String coordinatesOfRestaurant = orderRepository.findById(orderId).get()
+                .getRestaurant().getCoordinates();
+
+
+        return courierRepository.findAllByStatus("COURIER_ACTIVE").stream()
+                .min(Comparator.comparingDouble(c ->
+                        DistanceCalculator.calculateDistance(coordinatesOfRestaurant, c.getCoordinates())))
+                .get();
+
+    }
+
 
     private DeliveryDistances getDistances(Long orderId) {
 
@@ -65,18 +97,17 @@ public class DeliveryService {
                 .getCourier().getCoordinates();
 
         Double customerDistance = DistanceCalculator
-                .calculateDistance(coordinatesOfCourier, coordinatesOfCustomer);
+                .calculateDistance(coordinatesOfRestaurant, coordinatesOfCustomer);
 
         Double restaurantDistance = DistanceCalculator
-                .calculateDistance(coordinatesOfCourier, coordinatesOfRestaurant);
+                .calculateDistance(coordinatesOfRestaurant, coordinatesOfCourier);
 
-        return new DeliveryDistances(String.format("%.3f", customerDistance),
-                String.format("%.3f", restaurantDistance));
+        return new DeliveryDistances(roundNumber(customerDistance), roundNumber(restaurantDistance));
     }
 
-    private void checkIfOrderIsNull(Order order, Long id) {
-        if (order == null) {
-            throw new OrderNotFoundException("Order with id = " + id + " is not found");
-        }
+    private Double roundNumber(Double number) {
+        return Math.round(number * 1000.0) / 1000.0;
     }
+
+
 }

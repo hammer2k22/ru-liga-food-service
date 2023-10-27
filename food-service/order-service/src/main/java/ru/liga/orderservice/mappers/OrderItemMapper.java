@@ -12,6 +12,7 @@ import ru.liga.orderservice.models.dto.OrderItemForCreateOrderDTO;
 public interface OrderItemMapper {
     @Mapping(source = "orderItem.restaurantMenuItem.image", target = "image")
     @Mapping(source = "orderItem.restaurantMenuItem.description", target = "description")
+    @Mapping(source = "orderItem.restaurantMenuItem.name", target = "name")
     OrderItemDTO orderItemToOrderItemDTO(OrderItem orderItem);
 
     @Mapping(source = "menuItemId", target = "restaurantMenuItem")
