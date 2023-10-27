@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.liga.common.models.Courier;
+import ru.liga.common.models.CourierStatus;
 import ru.liga.common.models.Order;
 import ru.liga.common.models.OrderStatus;
 import ru.liga.common.repositories.CourierRepository;
@@ -56,6 +57,9 @@ public class DeliveryService {
         String status = requestBody.get("orderAction");
 
         if (status.equals("COURIER_ACCEPTED")) {
+            Courier courier = getNearestCourier(id);
+            courier.setStatus(CourierStatus.COURIER_NOT_AVAILABLE);
+            courierRepository.save(courier);
             order.setCourier(getNearestCourier(id));
             orderRepository.save(order);
         }
