@@ -46,6 +46,7 @@ public class OrderController {
 
     }
 
+    /*Кухня принимает/отклоняет заказ. Обновляет статус заказа*/
     @PostMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id,
                                                            @RequestBody Map<String, String> orderStatus) {

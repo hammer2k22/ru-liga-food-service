@@ -13,13 +13,13 @@ import ru.liga.common.models.OrderStatus;
 import ru.liga.common.repositories.CourierRepository;
 import ru.liga.common.repositories.OrderRepository;
 import ru.liga.common.util.DistanceCalculator;
+import ru.liga.common.util.exceptions.CourierNotFoundException;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
 import ru.liga.deliveryservice.feignClients.OrderServiceClient;
 import ru.liga.deliveryservice.mappers.DeliveryMapper;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
 import ru.liga.deliveryservice.models.dto.DeliveryDTO;
 import ru.liga.deliveryservice.models.dto.DeliveryDistances;
-import ru.liga.deliveryservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
 import java.util.Comparator;
 import java.util.Map;
@@ -33,7 +33,6 @@ public class DeliveryService {
     private final OrderRepository orderRepository;
     private final CourierRepository courierRepository;
     private final DeliveryMapper deliveryMapper;
-    private final RabbitProducerServiceImpl rabbitProducerService;
     private final OrderServiceClient orderServiceClient;
 
 
@@ -64,7 +63,24 @@ public class DeliveryService {
             orderRepository.save(order);
         }
 
+        if (status.equals("DELIVERY_COMPLETE")) {
+            order.getCourier().setStatus(CourierStatus.COURIER_AVAILABLE);
+            orderRepository.save(order);
+        }
+
         orderServiceClient.updateOrder(id, status);
+    }
+
+    public void updateCourierStatus(Map<String, String> requestBody, Long courierId) {
+
+        Courier courier = courierRepository.findById(courierId).orElseThrow(() ->
+                new CourierNotFoundException("Order with id = " + courierId + " is not found"));
+
+        String status = requestBody.get("orderAction");
+
+        courier.setStatus(CourierStatus.valueOf(status));
+
+        courierRepository.save(courier);
     }
 
     public void searchAvailableCourier(Long orderId) {
@@ -112,6 +128,5 @@ public class DeliveryService {
     private Double roundNumber(Double number) {
         return Math.round(number * 1000.0) / 1000.0;
     }
-
 
 }

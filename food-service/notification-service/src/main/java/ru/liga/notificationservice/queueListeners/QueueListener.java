@@ -64,14 +64,12 @@ public class QueueListener {
 
             String orderMessage = "Courier picked the order with id "+orderId;
             rabbitProducerService.sendMessage(orderMessage,"order");
-            rabbitProducerService.sendMessage(message,"delivery");
         }
 
         if(orderStatus.equals("DELIVERY_COMPLETE")){
 
             String orderMessage = "Order with id "+orderId+" complete";
             rabbitProducerService.sendMessage(orderMessage,"order");
-            rabbitProducerService.sendMessage(message,"delivery");
         }
 
     }
