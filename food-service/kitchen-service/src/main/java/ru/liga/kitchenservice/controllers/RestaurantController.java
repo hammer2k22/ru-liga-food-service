@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
+import ru.liga.common.util.exceptions.RestaurantNotFoundException;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreateDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreatedResponse;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemsResponse;
 import ru.liga.kitchenservice.models.dto.RestaurantResponse;
+import ru.liga.kitchenservice.models.dto.RestaurantsResponse;
 import ru.liga.kitchenservice.services.RestaurantMenuItemService;
 import ru.liga.kitchenservice.services.RestaurantService;
 
@@ -33,6 +35,15 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
     private final RestaurantMenuItemService menuItemService;
 
+
+    @GetMapping()
+    public ResponseEntity<RestaurantsResponse> getAllRestaurants(@RequestParam(defaultValue = "0") int page,
+             @RequestParam(defaultValue = "10") int size) {
+
+        RestaurantsResponse response = restaurantService.getAllMenuItems(page, size);
+
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{id}/restaurantMenuItems")
     public ResponseEntity<RestaurantMenuItemsResponse> getAllMenuItems
@@ -69,6 +80,16 @@ public class RestaurantController {
 
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(RestaurantMenuItemNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(RestaurantNotFoundException e) {
         ErrorResponse response = new ErrorResponse(
                 e.getMessage(),
                 new Timestamp(System.currentTimeMillis())

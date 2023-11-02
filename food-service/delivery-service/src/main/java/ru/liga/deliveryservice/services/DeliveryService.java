@@ -38,10 +38,12 @@ public class DeliveryService {
 
     public DeliveriesResponse getDeliveriesResponseByStatus(int page, int size, String status) {
 
+        Courier courier = courierRepository.findAll().get(0);  /*Заглушка*/
+
         Page<DeliveryDTO> deliveries = orderRepository
                 .findAllByStatus(PageRequest.of(page, size), OrderStatus.valueOf(status))
                 .map(order -> deliveryMapper.orderToDeliveryDTO(order, "some payment",
-                        getDistances(order.getId())));
+                        getDistances(order.getId(), courier.getId())));
 
         return new DeliveriesResponse(deliveries.getContent(), deliveries.getNumber(), deliveries.getSize());
     }
@@ -105,7 +107,7 @@ public class DeliveryService {
     }
 
 
-    private DeliveryDistances getDistances(Long orderId) {
+    private DeliveryDistances getDistances(Long orderId, Long courierId) {
 
         String coordinatesOfCustomer = orderRepository.findById(orderId).get()
                 .getCustomer().getCoordinates();
@@ -113,7 +115,7 @@ public class DeliveryService {
         String coordinatesOfRestaurant = orderRepository.findById(orderId).get()
                 .getRestaurant().getCoordinates();
 
-        String coordinatesOfCourier = orderRepository.findById(orderId).get()
+        String coordinatesOfCourier = orderRepository.findById(courierId).get()
                 .getCourier().getCoordinates();
 
         Double customerDistance = DistanceCalculator

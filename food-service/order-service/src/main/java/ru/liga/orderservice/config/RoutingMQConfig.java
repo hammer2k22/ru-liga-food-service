@@ -12,7 +12,7 @@ public class RoutingMQConfig {
 
     @Bean
     public Declarables notificationQueue() {
-        Queue queueDirectFirst = new Queue("notificationQueue", false);
+        Queue queueDirectFirst = new Queue("notificationQueue", true);
         DirectExchange directExchange = new DirectExchange("directExchange");
 
         return new Declarables(queueDirectFirst,  directExchange,

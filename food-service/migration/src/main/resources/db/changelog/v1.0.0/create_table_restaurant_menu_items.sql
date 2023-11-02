@@ -9,8 +9,8 @@ create table restaurant_menu_items
         constraint "FK_restaurant_menu_items_restaurants"
             references restaurants,
     name          varchar(64) not null,
-    price         bigint      not null,
-    image         varchar(64) not null,
+    price         numeric      not null,
+    image         varchar(512) not null,
     description   varchar     not null
 );
 

@@ -13,7 +13,7 @@ public class RoutingMQConfig {
 
     @Bean
     public Declarables kitchenQueue() {
-        Queue queueDirectFirst = new Queue("kitchenQueue", false);
+        Queue queueDirectFirst = new Queue("kitchenQueue", true);
         DirectExchange directExchange = new DirectExchange("directExchange");
 
         return new Declarables(queueDirectFirst,  directExchange,
@@ -22,7 +22,7 @@ public class RoutingMQConfig {
 
     @Bean
     public Declarables orderQueue() {
-        Queue queueDirectFirst = new Queue("orderQueue", false);
+        Queue queueDirectFirst = new Queue("orderQueue", true);
         DirectExchange directExchange = new DirectExchange("directExchange");
 
         return new Declarables(queueDirectFirst,  directExchange,
@@ -31,7 +31,7 @@ public class RoutingMQConfig {
 
     @Bean
     public Declarables deliveryQueue() {
-        Queue queueDirectFirst = new Queue("deliveryQueue", false);
+        Queue queueDirectFirst = new Queue("deliveryQueue", true);
         DirectExchange directExchange = new DirectExchange("directExchange");
 
         return new Declarables(queueDirectFirst,  directExchange,

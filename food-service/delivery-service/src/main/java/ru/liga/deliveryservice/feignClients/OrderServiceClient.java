@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "order-service", url = "http://localhost:8080")
 public interface OrderServiceClient {
 
-
     @PostMapping("/api/v1/orders/{id}")
     String updateOrder(@PathVariable Long id, @RequestBody String status);
 

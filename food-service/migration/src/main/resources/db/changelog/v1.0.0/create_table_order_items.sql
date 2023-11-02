@@ -11,7 +11,7 @@ create table order_items
     restaurant_menu_item_id bigint  not null
         constraint "FK_order_items_restaurant_menu_items"
             references restaurant_menu_items,
-    price                   bigint  not null,
+    price                   numeric  not null,
     quantity                integer not null
 );
 

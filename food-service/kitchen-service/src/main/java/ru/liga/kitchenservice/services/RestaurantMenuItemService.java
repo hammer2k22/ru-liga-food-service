@@ -45,7 +45,7 @@ public class RestaurantMenuItemService {
 
         menuItemRepository.save(restaurantMenuItem);
 
-        return new RestaurantMenuItemCreatedResponse(restaurant.getName(),restaurantMenuItem.getName());
+        return new RestaurantMenuItemCreatedResponse(restaurantMenuItem.getId(),restaurantMenuItem.getName());
     }
 
     public RestaurantMenuItemDTO getItemById(Long id) {

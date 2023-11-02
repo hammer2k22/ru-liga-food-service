@@ -27,6 +27,7 @@ import ru.liga.orderservice.models.dto.OrderResponse;
 import ru.liga.orderservice.models.dto.OrdersResponse;
 import ru.liga.orderservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,7 +106,7 @@ public class OrderService {
         return new OrderResponse(id, OrderStatus.CUSTOMER_CANCELLED.toString());
     }
 
-    private Long getOrderItemPrice(OrderItem orderItem) {
+    private BigDecimal getOrderItemPrice(OrderItem orderItem) {
 
         Long menuItemId = orderItem.getRestaurantMenuItem().getId();
 
@@ -113,9 +114,9 @@ public class OrderService {
                 .findById(menuItemId).orElseThrow(() -> new RestaurantMenuItemNotFoundException
                         ("RestaurantMenuItem with id = " + menuItemId + " is not found"));
 
-        Long menuItemPrice = menuItem.getPrice();
+        BigDecimal menuItemPrice = menuItem.getPrice();
         Integer quantity = orderItem.getQuantity();
-        return menuItemPrice * quantity;
+        return menuItemPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
     private void checkIfRestaurantIsNull(Order order) {

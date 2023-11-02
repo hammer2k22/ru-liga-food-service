@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.liga.common.models.Restaurant;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -12,7 +14,7 @@ public class RestaurantMenuItemDTO {
 
     private String name;
 
-    private Long price;
+    private BigDecimal price;
 
     private String image;
 
