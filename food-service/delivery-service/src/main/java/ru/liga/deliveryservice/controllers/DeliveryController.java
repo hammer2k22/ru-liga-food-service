@@ -1,6 +1,7 @@
 package ru.liga.deliveryservice.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +32,7 @@ public class DeliveryController {
 
 
 
+    @Operation(summary = "Список заказов в зависимости от статуса")
     @GetMapping()
     public ResponseEntity<DeliveriesResponse> getOrderByStatus(@RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size,
@@ -41,7 +43,8 @@ public class DeliveryController {
 
     }
 
-    /*Курьер берет или отказывается от заказа*/
+
+    @Operation(summary = "Взятие или отклонение заказа курьером")
     @PostMapping("/{orderId}")
     public ResponseEntity<HttpStatus> updateOrderStatus(@PathVariable Long orderId,
                                                         @RequestBody String status) {
@@ -52,7 +55,7 @@ public class DeliveryController {
 
     }
 
-    /*Курьер начинает/заканчивает смену*/
+    @Operation(summary = "Начать/закончить смену курьером")
     @PostMapping("/{courierId}")
     public ResponseEntity<HttpStatus> updateCourierStatus(@PathVariable Long courierId,
                                                         @RequestBody String status) {
