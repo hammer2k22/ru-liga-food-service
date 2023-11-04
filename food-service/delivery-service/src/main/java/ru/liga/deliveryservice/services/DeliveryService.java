@@ -50,12 +50,11 @@ public class DeliveryService {
 
 
     @Transactional
-    public void updateOrderStatus(Map<String, String> requestBody, Long id) {
+    public void updateOrderStatus(String status, Long id) {
 
         Order order = orderRepository.findById(id).orElseThrow(() ->
                 new OrderNotFoundException("Order with id = " + id + " is not found"));
 
-        String status = requestBody.get("orderAction");
 
         if (status.equals("COURIER_ACCEPTED")) {
             Courier courier = getNearestCourier(id);
@@ -73,12 +72,10 @@ public class DeliveryService {
         orderServiceClient.updateOrder(id, status);
     }
 
-    public void updateCourierStatus(Map<String, String> requestBody, Long courierId) {
+    public void updateCourierStatus(String status, Long courierId) {
 
         Courier courier = courierRepository.findById(courierId).orElseThrow(() ->
                 new CourierNotFoundException("Order with id = " + courierId + " is not found"));
-
-        String status = requestBody.get("orderAction");
 
         courier.setStatus(CourierStatus.valueOf(status));
 

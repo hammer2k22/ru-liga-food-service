@@ -50,13 +50,11 @@ public class OrderService {
 
     }
 
-    public OrderResponse updateOrderStatus(Long id, Map<String, String> orderStatus) {
-
-        String status = orderStatus.get("orderAction");
+    public OrderResponse updateOrderStatus(Long id, String status) {
 
         orderServiceClient.updateOrder(id, status);
 
-        rabbitProducerService.sendMessage(id + "." + orderStatus, "notification");
+        rabbitProducerService.sendMessage(id + "." + status, "notification");
 
         return new OrderResponse(id, status);
 

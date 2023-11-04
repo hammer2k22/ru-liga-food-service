@@ -1,6 +1,8 @@
 package ru.liga.kitchenservice.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +23,16 @@ import ru.liga.kitchenservice.services.RestaurantMenuItemService;
 import java.sql.Timestamp;
 
 
+@Tag(name = "API для взаимодействия с ресторанами")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/restaurantMenuItems")
+@RequestMapping("/api/v1/restaurants/restaurantMenuItems")
 public class RestaurantMenuItemController {
 
     private final RestaurantMenuItemService menuItemService;
 
 
+    @Operation(summary = "Получить позицию из меню по номеру")
     @GetMapping("/{id}")
     public ResponseEntity<RestaurantMenuItemDTO> getMenuItemById(@PathVariable Long id) {
 
@@ -37,6 +41,7 @@ public class RestaurantMenuItemController {
         return ResponseEntity.ok(menuItem);
     }
 
+    @Operation(summary = "Изменить определенную позицию в ресторане")
     @PostMapping("/{id}")
     public ResponseEntity<RestaurantMenuItemUpdatedResponse> updateRestaurantMenuItem(
             @RequestBody RestaurantMenuItemUpdateDTO restaurantMenuItemUpdateDTO, @PathVariable Long id) {

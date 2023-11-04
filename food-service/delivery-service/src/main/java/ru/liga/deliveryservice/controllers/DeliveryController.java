@@ -44,9 +44,9 @@ public class DeliveryController {
     /*Курьер берет или отказывается от заказа*/
     @PostMapping("/{orderId}")
     public ResponseEntity<HttpStatus> updateOrderStatus(@PathVariable Long orderId,
-                                                        @RequestBody Map<String, String> requestBody) {
+                                                        @RequestBody String status) {
         
-        deliveryService.updateOrderStatus(requestBody, orderId);
+        deliveryService.updateOrderStatus(status, orderId);
 
         return ResponseEntity.ok(HttpStatus.OK);
 
@@ -55,9 +55,9 @@ public class DeliveryController {
     /*Курьер начинает/заканчивает смену*/
     @PostMapping("/{courierId}")
     public ResponseEntity<HttpStatus> updateCourierStatus(@PathVariable Long courierId,
-                                                        @RequestBody Map<String, String> requestBody) {
+                                                        @RequestBody String status) {
 
-        deliveryService.updateCourierStatus(requestBody, courierId);
+        deliveryService.updateCourierStatus(status, courierId);
 
         return ResponseEntity.ok(HttpStatus.OK);
 

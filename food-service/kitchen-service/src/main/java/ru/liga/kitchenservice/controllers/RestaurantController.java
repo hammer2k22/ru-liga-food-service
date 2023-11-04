@@ -1,6 +1,8 @@
 package ru.liga.kitchenservice.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ import java.sql.Timestamp;
 import java.util.Map;
 
 
+@Tag(name = "API для взаимодействия с ресторанами")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/restaurants")
@@ -36,6 +39,7 @@ public class RestaurantController {
     private final RestaurantMenuItemService menuItemService;
 
 
+    @Operation(summary = "Получить список ресторанов")
     @GetMapping()
     public ResponseEntity<RestaurantsResponse> getAllRestaurants(@RequestParam(defaultValue = "0") int page,
              @RequestParam(defaultValue = "10") int size) {
@@ -45,6 +49,7 @@ public class RestaurantController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Получить меню по номеру ресторана")
     @GetMapping("/{id}/restaurantMenuItems")
     public ResponseEntity<RestaurantMenuItemsResponse> getAllMenuItems
             (@PathVariable Long id, @RequestParam(defaultValue = "0") int page,
@@ -56,6 +61,7 @@ public class RestaurantController {
 
     }
 
+    @Operation(summary = "Добавить новую позицию в меню определенного ресторана")
     @PostMapping("/{id}/restaurantMenuItems")
     public ResponseEntity<RestaurantMenuItemCreatedResponse> createNewRestaurantMenuItem(
             @PathVariable Long id,
@@ -68,9 +74,10 @@ public class RestaurantController {
 
     }
 
+    @Operation(summary = "Изменить статус ресторана(открыт/закрыт)")
     @PostMapping("/{id}")
     public ResponseEntity<RestaurantResponse> updateRestaurantStatus
-            (@PathVariable Long id, @RequestBody Map<String, String> status) {
+            (@PathVariable Long id, @RequestBody String status) {
 
         RestaurantResponse response = restaurantService.updateStatus(id, status);
 

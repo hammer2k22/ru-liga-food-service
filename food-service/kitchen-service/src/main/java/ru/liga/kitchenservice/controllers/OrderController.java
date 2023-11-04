@@ -2,6 +2,8 @@ package ru.liga.kitchenservice.controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import ru.liga.kitchenservice.services.OrderService;
 import java.util.Map;
 
 
+@Tag(name = "API для взаимодействия с ресторанами")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/restaurants/orders")
@@ -26,8 +29,9 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @Operation(summary = "Получить список заказов в зависимости от статуса")
     @GetMapping()
-    public ResponseEntity<OrdersResponse> getOrderByStatus(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<OrdersResponse> getOrdersByStatus(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size,
                                                            @RequestParam String status) {
 
@@ -37,6 +41,7 @@ public class OrderController {
 
     }
 
+    @Operation(summary = "Получить заказ по номеру")
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) throws JsonProcessingException {
 
@@ -46,12 +51,12 @@ public class OrderController {
 
     }
 
-    /*Кухня принимает/отклоняет заказ. Обновляет статус заказа*/
+    @Operation(summary = "Обновить статус заказа(принять/отклонить/отправить на доставку)")
     @PostMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id,
-                                                           @RequestBody Map<String, String> orderStatus) {
+                                                           @RequestBody String status) {
 
-        OrderResponse response = orderService.updateOrderStatus(id, orderStatus);
+        OrderResponse response = orderService.updateOrderStatus(id, status);
 
         return ResponseEntity.ok(response);
 

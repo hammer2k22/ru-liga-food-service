@@ -1,6 +1,8 @@
 package ru.liga.orderservice.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,7 @@ import ru.liga.orderservice.models.dto.OrdersResponse;
 import ru.liga.orderservice.services.OrderService;
 
 import java.sql.Timestamp;
-
+@Tag(name = "API для взаимодействия с заказами")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/orders")
@@ -34,6 +36,7 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    @Operation(summary = "Создать новый заказ")
     @PostMapping()
     public ResponseEntity<OrderCreateResponse> create(@RequestBody OrderCreateDTO orderCreateDTO) {
 
@@ -42,6 +45,7 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Получить историю заказов постранично")
     @GetMapping()
     public ResponseEntity<OrdersResponse> getAllOrders(@RequestParam(defaultValue = "0") int page,
                                                        @RequestParam(defaultValue = "10") int size) {
@@ -52,6 +56,7 @@ public class OrderController {
 
     }
 
+    @Operation(summary = "Получить заказ но номеру")
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) {
 
@@ -60,6 +65,7 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
+    @Operation(summary = "Оплатить заказ")
     @PostMapping("/pay/{id}")
     public ResponseEntity<OrderResponse> payOrder(@PathVariable Long id) {
 
@@ -69,6 +75,7 @@ public class OrderController {
 
     }
 
+    @Operation(summary = "Обновить статус заказа")
     @PostMapping("/{id}")
     public ResponseEntity<OrderResponse> updateOrderStatus(@PathVariable Long id,
                                                            @RequestBody String status) {
@@ -80,6 +87,7 @@ public class OrderController {
 
     }
 
+    @Operation(summary = "Отменить заказ")
     @DeleteMapping("/{id}")
     public ResponseEntity<OrderResponse> delete(@PathVariable Long id) {
 

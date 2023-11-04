@@ -28,18 +28,16 @@ public class RestaurantService {
     private final RestaurantMapper restaurantMapper;
 
     @Transactional
-    public RestaurantResponse updateStatus(Long id, Map<String, String> status) {
-
-        String restaurantStatus = status.get("orderAction");
+    public RestaurantResponse updateStatus(Long id, String status) {
 
         Restaurant restaurant = restaurantRepository.findById(id)
-                .orElseThrow(()->new RestaurantNotFoundException("Restaurant with id "+id+" is not found"));
+                .orElseThrow(() -> new RestaurantNotFoundException("Restaurant with id " + id + " is not found"));
 
-        restaurant.setStatus(RestaurantStatus.valueOf(restaurantStatus));
+        restaurant.setStatus(RestaurantStatus.valueOf(status));
 
         restaurantRepository.save(restaurant);
 
-        return new RestaurantResponse(restaurant.getName(),restaurantStatus);
+        return new RestaurantResponse(restaurant.getName(), status);
     }
 
     public RestaurantsResponse getAllMenuItems(int page, int size) {
@@ -48,6 +46,6 @@ public class RestaurantService {
                 .map(restaurantMapper::restaurantToRestaurantDTO);
 
         return new RestaurantsResponse
-                (restaurants.getContent(),restaurants.getNumber(),restaurants.getSize());
+                (restaurants.getContent(), restaurants.getNumber(), restaurants.getSize());
     }
 }
