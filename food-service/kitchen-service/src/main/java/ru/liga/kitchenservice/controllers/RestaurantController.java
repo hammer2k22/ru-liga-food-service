@@ -18,6 +18,7 @@ import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantStatusNotFoundException;
+import ru.liga.kitchenservice.models.dto.RestaurantDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreateDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreatedResponse;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemsResponse;
@@ -27,7 +28,6 @@ import ru.liga.kitchenservice.services.RestaurantMenuItemService;
 import ru.liga.kitchenservice.services.RestaurantService;
 
 import java.sql.Timestamp;
-import java.util.Map;
 
 
 @Tag(name = "API для взаимодействия с ресторанами")
@@ -45,7 +45,7 @@ public class RestaurantController {
     public ResponseEntity<RestaurantsResponse> getAllRestaurants(@RequestParam(defaultValue = "0") int page,
              @RequestParam(defaultValue = "10") int size) {
 
-        RestaurantsResponse response = restaurantService.getAllMenuItems(page, size);
+        RestaurantsResponse response = restaurantService.getAllRestaurants(page, size);
 
         return ResponseEntity.ok(response);
     }
@@ -85,6 +85,7 @@ public class RestaurantController {
         return ResponseEntity.ok(response);
 
     }
+
 
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(RestaurantMenuItemNotFoundException e) {
