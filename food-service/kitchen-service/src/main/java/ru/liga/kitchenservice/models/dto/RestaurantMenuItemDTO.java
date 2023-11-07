@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class RestaurantMenuItemDTO {
 
+    private Long id;
+
     private String name;
 
     private BigDecimal price;

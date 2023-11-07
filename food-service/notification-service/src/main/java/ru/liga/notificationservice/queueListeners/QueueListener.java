@@ -13,6 +13,7 @@ public class QueueListener {
 
     @RabbitListener(queues = "notificationQueue")
     public void processMyQueue(String message) {
+
         long orderId = Long.parseLong(message.substring(0, message.indexOf('.')));
         String orderStatus = message.substring(message.indexOf('.')+1);
 

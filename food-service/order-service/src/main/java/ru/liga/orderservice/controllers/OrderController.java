@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.liga.common.models.OrderStatus;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.common.util.exceptions.OrderStatusNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
 import ru.liga.orderservice.models.dto.OrderCreateDTO;
@@ -82,9 +83,7 @@ public class OrderController {
 
         OrderResponse response = orderService.updateOrderStatus(status, id);
 
-
         return ResponseEntity.ok(response);
-
     }
 
     @Operation(summary = "Отменить заказ")
@@ -124,6 +123,16 @@ public class OrderController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(OrderStatusNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

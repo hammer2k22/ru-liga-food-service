@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.liga.common.util.ErrorResponse;
+import ru.liga.common.util.exceptions.OrderStatusNotFoundException;
 import ru.liga.kitchenservice.models.dto.OrderDTO;
 import ru.liga.kitchenservice.models.dto.OrderResponse;
 import ru.liga.kitchenservice.models.dto.OrdersResponse;
 import ru.liga.kitchenservice.services.OrderService;
 
-import java.util.Map;
+import java.sql.Timestamp;
 
 
 @Tag(name = "API для взаимодействия с ресторанами")
@@ -43,7 +47,7 @@ public class OrderController {
 
     @Operation(summary = "Получить заказ по номеру")
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id) throws JsonProcessingException {
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Long id)  {
 
         OrderDTO order = orderService.getOrderById(id);
 
@@ -60,6 +64,16 @@ public class OrderController {
 
         return ResponseEntity.ok(response);
 
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(OrderStatusNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

@@ -8,8 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.liga.common.models.Order;
 import ru.liga.common.models.OrderStatus;
 import ru.liga.common.repositories.OrderRepository;
+import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.common.util.exceptions.OrderStatusNotFoundException;
 import ru.liga.kitchenservice.feignClients.OrderServiceClient;
 import ru.liga.kitchenservice.mappers.OrderMapper;
 import ru.liga.kitchenservice.models.dto.OrderDTO;
@@ -17,6 +20,7 @@ import ru.liga.kitchenservice.models.dto.OrderResponse;
 import ru.liga.kitchenservice.models.dto.OrdersResponse;
 import ru.liga.kitchenservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
+import java.util.Arrays;
 import java.util.Map;
 
 
@@ -27,17 +31,15 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final OrderServiceClient orderServiceClient;
     private final RabbitProducerServiceImpl rabbitProducerService;
 
 
-    public OrderDTO getOrderById(Long id) throws JsonProcessingException {
+    public OrderDTO getOrderById(Long id) {
 
-        String response = orderServiceClient.getOrder(id);
+        Order order = orderRepository.findById(id).orElseThrow(() ->
+                new OrderNotFoundException("Order with id " + id + " is not found"));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        return objectMapper.readValue(response, OrderDTO.class);
+        return orderMapper.orderToOrderDTO(order);
     }
 
     public OrdersResponse getOrdersResponseByStatus(int page, int size, String status) {
@@ -50,13 +52,25 @@ public class OrderService {
 
     }
 
-    public OrderResponse updateOrderStatus(Long id, String status) {
+    @Transactional
+    public OrderResponse updateOrderStatus(Long id, String orderStatus) {
 
-        orderServiceClient.updateOrder(id, status);
+        Order order = orderRepository.findById(id).orElseThrow(() ->
+                new OrderNotFoundException("Order with id " + id + " is not found"));
 
-        rabbitProducerService.sendMessage(id + "." + status, "notification");
+        boolean wrongFormatOrderStatus = Arrays.stream(OrderStatus.values())
+                .map(Enum::toString)
+                .noneMatch(status->status.equals(orderStatus));
 
-        return new OrderResponse(id, status);
+        if(wrongFormatOrderStatus){
+            throw new OrderStatusNotFoundException("Status " + orderStatus + " is not found");
+        }
+
+        order.setStatus(OrderStatus.valueOf(orderStatus));
+
+        rabbitProducerService.sendMessage(id + "." + orderStatus, "notification");
+
+        return new OrderResponse(id, orderStatus);
 
     }
 

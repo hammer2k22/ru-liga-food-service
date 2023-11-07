@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.CourierNotFoundException;
+import ru.liga.common.util.exceptions.CourierStatusNotFoundException;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.common.util.exceptions.OrderStatusNotFoundException;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
 import ru.liga.deliveryservice.services.DeliveryService;
 
@@ -45,7 +47,7 @@ public class DeliveryController {
 
 
     @Operation(summary = "Взятие или отклонение заказа курьером")
-    @PostMapping("/{orderId}")
+    @PostMapping("/orders/{orderId}")
     public ResponseEntity<HttpStatus> updateOrderStatus(@PathVariable Long orderId,
                                                         @RequestBody String status) {
         
@@ -84,6 +86,26 @@ public class DeliveryController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(OrderStatusNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(CourierStatusNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 }

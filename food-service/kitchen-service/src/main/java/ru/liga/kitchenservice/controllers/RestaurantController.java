@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.liga.common.util.ErrorResponse;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
+import ru.liga.common.util.exceptions.RestaurantStatusNotFoundException;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreateDTO;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemCreatedResponse;
 import ru.liga.kitchenservice.models.dto.RestaurantMenuItemsResponse;
@@ -103,6 +104,16 @@ public class RestaurantController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(RestaurantStatusNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                new Timestamp(System.currentTimeMillis())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
 

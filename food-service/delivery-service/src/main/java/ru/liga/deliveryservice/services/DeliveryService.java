@@ -14,13 +14,17 @@ import ru.liga.common.repositories.CourierRepository;
 import ru.liga.common.repositories.OrderRepository;
 import ru.liga.common.util.DistanceCalculator;
 import ru.liga.common.util.exceptions.CourierNotFoundException;
+import ru.liga.common.util.exceptions.CourierStatusNotFoundException;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.common.util.exceptions.OrderStatusNotFoundException;
 import ru.liga.deliveryservice.feignClients.OrderServiceClient;
 import ru.liga.deliveryservice.mappers.DeliveryMapper;
 import ru.liga.deliveryservice.models.dto.DeliveriesResponse;
 import ru.liga.deliveryservice.models.dto.DeliveryDTO;
 import ru.liga.deliveryservice.models.dto.DeliveryDistances;
+import ru.liga.deliveryservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 
@@ -33,7 +37,7 @@ public class DeliveryService {
     private final OrderRepository orderRepository;
     private final CourierRepository courierRepository;
     private final DeliveryMapper deliveryMapper;
-    private final OrderServiceClient orderServiceClient;
+    private final RabbitProducerServiceImpl rabbitProducerService;
 
 
     public DeliveriesResponse getDeliveriesResponseByStatus(int page, int size, String status) {
@@ -47,16 +51,22 @@ public class DeliveryService {
 
         return new DeliveriesResponse(deliveries.getContent(), deliveries.getNumber(), deliveries.getSize());
     }
-
-
     @Transactional
-    public void updateOrderStatus(String status, Long id) {
+    public void updateOrderStatus(String orderStatus, Long id) {
 
         Order order = orderRepository.findById(id).orElseThrow(() ->
                 new OrderNotFoundException("Order with id = " + id + " is not found"));
 
+        boolean wrongFormatOrderStatus = Arrays.stream(OrderStatus.values())
+                .map(Enum::toString)
+                .noneMatch(status->status.equals(orderStatus));
 
-        if (status.equals("COURIER_ACCEPTED")) {
+        if(wrongFormatOrderStatus){
+            throw new OrderStatusNotFoundException("Status " + orderStatus + " is not found");
+        }
+
+
+        if (orderStatus.equals("COURIER_ACCEPTED")) {
             Courier courier = getNearestCourier(id);
             courier.setStatus(CourierStatus.COURIER_NOT_AVAILABLE);
             courierRepository.save(courier);
@@ -64,20 +74,32 @@ public class DeliveryService {
             orderRepository.save(order);
         }
 
-        if (status.equals("DELIVERY_COMPLETE")) {
+        if (orderStatus.equals("DELIVERY_COMPLETE")) {
             order.getCourier().setStatus(CourierStatus.COURIER_AVAILABLE);
             orderRepository.save(order);
         }
 
-        orderServiceClient.updateOrder(id, status);
+        order.setStatus(OrderStatus.valueOf(orderStatus));
+        orderRepository.save(order);
+
+        rabbitProducerService.sendMessage(id + "."+orderStatus, "notification");
     }
 
-    public void updateCourierStatus(String status, Long courierId) {
+    @Transactional
+    public void updateCourierStatus(String courierStatus, Long courierId) {
 
         Courier courier = courierRepository.findById(courierId).orElseThrow(() ->
                 new CourierNotFoundException("Order with id = " + courierId + " is not found"));
 
-        courier.setStatus(CourierStatus.valueOf(status));
+        boolean wrongFormatCourierStatus = Arrays.stream(CourierStatus.values())
+                .map(Enum::toString)
+                .noneMatch(status->status.equals(courierStatus));
+
+        if(wrongFormatCourierStatus){
+            throw new CourierStatusNotFoundException("Status " + courierStatus + " is not found");
+        }
+
+        courier.setStatus(CourierStatus.valueOf(courierStatus));
 
         courierRepository.save(courier);
     }
@@ -86,7 +108,7 @@ public class DeliveryService {
 
         Courier courier = getNearestCourier(orderId);
 
-        System.out.println("Waiting courier with id" + courier.getId());
+        System.out.println("Waiting courier with id " + courier.getId());
 
     }
 
@@ -96,7 +118,7 @@ public class DeliveryService {
                 .getRestaurant().getCoordinates();
 
 
-        return courierRepository.findAllByStatus("COURIER_ACTIVE").stream()
+        return courierRepository.findAllByStatus(CourierStatus.COURIER_AVAILABLE).stream()
                 .min(Comparator.comparingDouble(c ->
                         DistanceCalculator.calculateDistance(coordinatesOfRestaurant, c.getCoordinates())))
                 .get();
@@ -112,8 +134,8 @@ public class DeliveryService {
         String coordinatesOfRestaurant = orderRepository.findById(orderId).get()
                 .getRestaurant().getCoordinates();
 
-        String coordinatesOfCourier = orderRepository.findById(courierId).get()
-                .getCourier().getCoordinates();
+        String coordinatesOfCourier = courierRepository.findById(courierId).get()
+                .getCoordinates();
 
         Double customerDistance = DistanceCalculator
                 .calculateDistance(coordinatesOfRestaurant, coordinatesOfCustomer);

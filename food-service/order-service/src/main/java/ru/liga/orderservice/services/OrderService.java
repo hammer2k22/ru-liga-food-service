@@ -17,6 +17,7 @@ import ru.liga.common.repositories.OrderRepository;
 import ru.liga.common.repositories.RestaurantMenuItemRepository;
 import ru.liga.common.repositories.RestaurantRepository;
 import ru.liga.common.util.exceptions.OrderNotFoundException;
+import ru.liga.common.util.exceptions.OrderStatusNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantMenuItemNotFoundException;
 import ru.liga.common.util.exceptions.RestaurantNotFoundException;
 import ru.liga.orderservice.mappers.OrderMapper;
@@ -28,6 +29,7 @@ import ru.liga.orderservice.models.dto.OrdersResponse;
 import ru.liga.orderservice.services.rabbitProducerService.RabbitProducerServiceImpl;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,12 +81,19 @@ public class OrderService {
 
         return orderMapper.orderToOrderDTO(order);
     }
-
     @Transactional
     public OrderResponse updateOrderStatus(String orderStatus, Long id) {
 
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException("Order with id = " + id + " is not found"));
+
+        boolean wrongFormatOrderStatus = Arrays.stream(OrderStatus.values())
+                .map(Enum::toString)
+                .noneMatch(status->status.equals(orderStatus));
+
+        if(wrongFormatOrderStatus){
+            throw new OrderStatusNotFoundException("Status " + orderStatus + " is not found");
+        }
 
         order.setStatus(OrderStatus.valueOf(orderStatus));
 
@@ -94,6 +103,7 @@ public class OrderService {
 
         return new OrderResponse(id, orderStatus);
     }
+
 
     @Transactional
     public OrderResponse delete(Long id) {
