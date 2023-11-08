@@ -73,7 +73,7 @@ public class OrderController {
     }
 
     @Operation(summary = "Оплатить заказ")
-    @PostMapping ("/pay/{orderId}")
+    @PostMapping ("/{orderId}/pay")
     public ResponseEntity<OrderResponse> payOrder(@PathVariable UUID orderId) {
 
         OrderResponse response = orderService.updateOrderStatus(OrderStatus.CUSTOMER_PAID, orderId);
