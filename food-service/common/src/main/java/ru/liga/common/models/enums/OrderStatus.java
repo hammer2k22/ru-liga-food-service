@@ -1,0 +1,15 @@
+package ru.liga.common.models.enums;
+
+public enum OrderStatus {
+    CUSTOMER_CREATED,
+    CUSTOMER_PAID,
+    CUSTOMER_CANCELLED,
+
+    KITCHEN_ACCEPTED,
+    KITCHEN_DECLINED,
+    KITCHEN_READIED,
+
+    DELIVERY_ACCEPTED,
+    DELIVERY_COMPLETE
+
+}
